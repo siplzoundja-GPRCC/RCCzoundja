@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { safeHttpsUrl, safeMapEmbedUrl, safeSocialUrl } from "@/lib/urls";
 
 export type Settings = Record<string, string>;
 
@@ -9,7 +10,14 @@ export function useSettings() {
     queryFn: async (): Promise<Settings> => {
       const { data, error } = await supabase.from("site_settings").select("key,value");
       if (error) throw error;
-      return Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
+      return Object.fromEntries(
+        (data ?? []).map((r) => {
+          if (r.key === "facebook_url") return [r.key, safeSocialUrl(r.value, "facebook") ?? ""];
+          if (r.key === "youtube_url") return [r.key, safeSocialUrl(r.value, "youtube") ?? ""];
+          if (r.key === "map_embed") return [r.key, safeMapEmbedUrl(r.value) ?? ""];
+          return [r.key, r.value];
+        }),
+      );
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -41,7 +49,7 @@ export function useEvents(limit?: number) {
       if (limit) q = q.limit(limit);
       const { data, error } = await q;
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((event) => ({ ...event, image_url: safeHttpsUrl(event.image_url) }));
     },
   });
 }
@@ -52,7 +60,7 @@ export function useEvent(slug: string) {
     queryFn: async () => {
       const { data, error } = await supabase.from("events").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
-      return data;
+      return data ? { ...data, image_url: safeHttpsUrl(data.image_url) } : null;
     },
   });
 }
@@ -69,7 +77,7 @@ export function usePosts(limit?: number) {
       if (limit) q = q.limit(limit);
       const { data, error } = await q;
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((post) => ({ ...post, image_url: safeHttpsUrl(post.image_url) }));
     },
   });
 }
@@ -80,7 +88,7 @@ export function usePost(slug: string) {
     queryFn: async () => {
       const { data, error } = await supabase.from("posts").select("*").eq("slug", slug).maybeSingle();
       if (error) throw error;
-      return data;
+      return data ? { ...data, image_url: safeHttpsUrl(data.image_url) } : null;
     },
   });
 }
@@ -94,7 +102,7 @@ export function useAlbums() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((album) => ({ ...album, cover_url: safeHttpsUrl(album.cover_url) }));
     },
   });
 }
@@ -108,7 +116,10 @@ export function usePhotos() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).flatMap((photo) => {
+        const imageUrl = safeHttpsUrl(photo.image_url);
+        return imageUrl ? [{ ...photo, image_url: imageUrl }] : [];
+      });
     },
   });
 }
@@ -122,7 +133,7 @@ export function useResources() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((resource) => ({ ...resource, file_url: safeHttpsUrl(resource.file_url) }));
     },
   });
 }
@@ -135,7 +146,10 @@ export function useTestimonials(onlyApproved = true) {
       if (onlyApproved) q = q.eq("is_approved", true);
       const { data, error } = await q;
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((testimonial) => ({
+        ...testimonial,
+        photo_url: safeHttpsUrl(testimonial.photo_url),
+      }));
     },
   });
 }

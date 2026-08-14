@@ -35,6 +35,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const getAppUrl = () => new URL(import.meta.env.BASE_URL, window.location.origin);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -61,7 +62,7 @@ function AuthPage() {
     } else {
       const { error } = await supabase.auth.signUp({
         ...parsed.data,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
+        options: { emailRedirectTo: new URL("admin", getAppUrl()).toString() },
       });
       setBusy(false);
       if (error) {
@@ -75,7 +76,7 @@ function AuthPage() {
 
   async function google() {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: getAppUrl().toString(),
     });
     if (result.error) {
       toast.error("Connexion Google impossible.");

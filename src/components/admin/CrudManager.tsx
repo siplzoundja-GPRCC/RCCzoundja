@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadMedia, slugify } from "@/lib/media";
+import { safeHttpsUrl } from "@/lib/urls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,6 +83,9 @@ export function CrudManager({
         }
         if (f.type === "boolean") body[f.name] = Boolean(body[f.name]);
         if (body[f.name] === "") body[f.name] = null;
+        if (f.type === "image" && body[f.name] && !safeHttpsUrl(String(body[f.name]))) {
+          throw new Error("Les URL de fichiers doivent utiliser HTTPS.");
+        }
       }
       if (editing) {
         const { error } = await supabase

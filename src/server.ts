@@ -9,6 +9,35 @@ type ServerEntry = {
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
+function withSecurityHeaders(response: Response, request: Request): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'self'",
+    "form-action 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' https: data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https: wss:",
+    "media-src 'self' https:",
+    "frame-src https://www.google.com https://maps.google.com https://www.openstreetmap.org",
+  ].join("; "));
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "SAMEORIGIN");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+
+  if (new URL(request.url).protocol === "https:") {
+    headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+
+  const body = [204, 205, 304].includes(response.status) ? null : response.body;
+  return new Response(body, { status: response.status, statusText: response.statusText, headers });
+}
+
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
     serverEntryPromise = import("@tanstack/react-start/server-entry").then(
@@ -49,13 +78,13 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response), request);
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
+      return withSecurityHeaders(new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      }), request);
     }
   },
 };
