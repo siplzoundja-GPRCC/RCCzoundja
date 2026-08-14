@@ -57,7 +57,6 @@ function AuthPage() {
         toast.error("Identifiants incorrects.");
         return;
       }
-      await supabase.rpc("claim_first_admin");
       void navigate({ to: "/admin" });
     } else {
       const { error } = await supabase.auth.signUp({
@@ -69,7 +68,6 @@ function AuthPage() {
         toast.error(error.message);
         return;
       }
-      await supabase.rpc("claim_first_admin");
       toast.success("Compte créé. Vérifiez votre email si une confirmation est demandée.");
       void navigate({ to: "/admin" });
     }
@@ -84,7 +82,6 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    await supabase.rpc("claim_first_admin");
     void navigate({ to: "/admin" });
   }
 
@@ -146,7 +143,7 @@ function AuthPage() {
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-primary"
         >
-          {mode === "signin" ? "Créer un compte responsable" : "J'ai déjà un compte"}
+          {mode === "signin" ? "Créer un compte" : "J'ai déjà un compte"}
         </button>
 
         <Link
