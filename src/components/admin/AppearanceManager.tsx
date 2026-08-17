@@ -24,6 +24,12 @@ type AppearanceField = {
 
 const FIELDS = [
   {
+    key: "site_logo_url",
+    label: "Logo du site",
+    help: "Logo affiché en haut à gauche. Choisissez de préférence une image carrée PNG ou WebP ; laissez vide pour conserver la flamme actuelle.",
+    type: "image",
+  },
+  {
     key: "home_hero_title",
     label: "Titre principal",
     help: "Grand texte affiché sur la photo d'accueil.",
@@ -92,6 +98,7 @@ type AppearanceKey = (typeof FIELDS)[number]["key"];
 type AppearanceValues = Record<AppearanceKey, string>;
 
 const DEFAULT_VALUES: AppearanceValues = {
+  site_logo_url: "",
   home_hero_title: "Unis dans la prière,\nrenouvelés dans l'Esprit.",
   home_hero_description:
     "Une communauté de foi, de prière et de fraternité, rassemblée pour accueillir la présence de Dieu et annoncer l'Évangile.",

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/lib/queries";
+import { safeHttpsUrl } from "@/lib/urls";
 import { cn } from "@/lib/utils";
 
 export const NAV_LINKS = [
@@ -18,14 +20,24 @@ export const NAV_LINKS = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { data: settings } = useSettings();
+  const logoUrl = safeHttpsUrl(settings?.["site_logo_url"]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-md">
       <div className="container-page flex h-18 items-center justify-between gap-4 py-3">
         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-accent">
-            <Flame className="size-5" />
-          </span>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="Logo du Groupe de Prière de Zoundja"
+              className="size-12 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-accent">
+              <Flame className="size-5" />
+            </span>
+          )}
           <span className="leading-tight">
             <span className="block font-display text-[0.78rem] font-semibold tracking-[0.16em] text-primary uppercase sm:text-sm">
               Renouveau Charismatique
