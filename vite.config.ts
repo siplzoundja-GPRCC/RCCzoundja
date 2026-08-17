@@ -19,17 +19,15 @@ export default defineConfig({
     // GitHub Pages and Netlify both serve a static client-side application shell.
     ...(isStaticHostingBuild
       ? {
-          spa: {
-            enabled: true,
-            prerender: { outputPath: "/index.html" },
-          },
+          spa: { enabled: true },
         }
       : {}),
   },
   vite: {
     // GitHub Pages is a project site; Netlify and local development use the root path.
     base: isGitHubPagesBuild ? "/RCCzoundja/" : "/",
-    // Prerendering needs a Node-compatible server; Lovable otherwise targets Cloudflare.
-    ...(isStaticHostingBuild ? { plugins: [nitro({ preset: "node-server" })] } : {}),
+    // GitHub Pages needs a Node-compatible prerendering server. Netlify uses its
+    // native Vite/Nitro integration and must not receive this Node server preset.
+    ...(isGitHubPagesBuild ? { plugins: [nitro({ preset: "node-server" })] } : {}),
   },
 });

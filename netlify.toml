@@ -7,8 +7,8 @@
   NODE_VERSION = "22"
   DEPLOY_TARGET = "netlify"
 
-# TanStack Router uses browser history. Serve the application shell for direct links.
+# TanStack Start SPA mode generates this shell. Serve it for direct links.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/_shell.html"
   status = 200
