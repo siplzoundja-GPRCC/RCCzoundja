@@ -85,7 +85,7 @@ function Index() {
         />
         <div className="absolute inset-0 -z-10 bg-[var(--gradient-hero)]" />
         <div className="container-page py-24 text-primary-foreground">
-          <Reveal className="max-w-3xl">
+          <Reveal className="max-w-3xl rounded-xl bg-primary/65 p-6 shadow-2xl backdrop-blur-[2px] sm:p-10">
             <p className="text-[0.7rem] tracking-[0.32em] text-accent uppercase sm:text-xs">
               Renouveau Charismatique Catholique
             </p>
