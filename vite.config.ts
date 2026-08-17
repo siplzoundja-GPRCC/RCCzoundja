@@ -8,16 +8,14 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { nitro } from "nitro/vite";
 
 const isGitHubPagesBuild = process.env.GITHUB_PAGES === "true";
-const isNetlifyBuild = process.env.DEPLOY_TARGET === "netlify";
-const isStaticHostingBuild = isGitHubPagesBuild || isNetlifyBuild;
 
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // GitHub Pages and Netlify both serve a static client-side application shell.
-    ...(isStaticHostingBuild
+    // GitHub Pages is static. Netlify uses TanStack Start's native server adapter.
+    ...(isGitHubPagesBuild
       ? {
           spa: { enabled: true },
         }

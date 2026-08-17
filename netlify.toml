@@ -1,14 +1,8 @@
 [build]
   command = "bun install --frozen-lockfile && bun run build"
-  publish = ".output/public"
+  publish = "dist"
 
 [build.environment]
   BUN_VERSION = "1.2.23"
   NODE_VERSION = "22"
   DEPLOY_TARGET = "netlify"
-
-# TanStack Start SPA mode generates this shell. Serve it for direct links.
-[[redirects]]
-  from = "/*"
-  to = "/_shell.html"
-  status = 200
