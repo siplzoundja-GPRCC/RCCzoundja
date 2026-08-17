@@ -1,0 +1,14 @@
+[build]
+  command = "bun install --frozen-lockfile && bun run build"
+  publish = ".output/public"
+
+[build.environment]
+  BUN_VERSION = "1.2.23"
+  NODE_VERSION = "22"
+  DEPLOY_TARGET = "netlify"
+
+# TanStack Router uses browser history. Serve the application shell for direct links.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

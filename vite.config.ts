@@ -8,14 +8,16 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { nitro } from "nitro/vite";
 
 const isGitHubPagesBuild = process.env.GITHUB_PAGES === "true";
+const isNetlifyBuild = process.env.DEPLOY_TARGET === "netlify";
+const isStaticHostingBuild = isGitHubPagesBuild || isNetlifyBuild;
 
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // GitHub Pages only serves static files. Generate a client-side shell for that target.
-    ...(isGitHubPagesBuild
+    // GitHub Pages and Netlify both serve a static client-side application shell.
+    ...(isStaticHostingBuild
       ? {
           spa: {
             enabled: true,
@@ -25,9 +27,9 @@ export default defineConfig({
       : {}),
   },
   vite: {
-    // Keep local and existing hosting paths unchanged; GitHub Pages is a project site.
+    // GitHub Pages is a project site; Netlify and local development use the root path.
     base: isGitHubPagesBuild ? "/RCCzoundja/" : "/",
     // Prerendering needs a Node-compatible server; Lovable otherwise targets Cloudflare.
-    ...(isGitHubPagesBuild ? { plugins: [nitro({ preset: "node-server" })] } : {}),
+    ...(isStaticHostingBuild ? { plugins: [nitro({ preset: "node-server" })] } : {}),
   },
 });
