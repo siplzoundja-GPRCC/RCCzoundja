@@ -8,7 +8,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Reveal } from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
-import { useActivities, useEvents, usePosts, useTestimonials, formatDateFr } from "@/lib/queries";
+import { useActivities, useEvents, usePosts, useSettings, useTestimonials, formatDateFr } from "@/lib/queries";
+import { safeHttpsUrl } from "@/lib/urls";
 
 const TITLE = "Renouveau Charismatique Catholique — Groupe de Prière de Zoundja";
 const DESCRIPTION =
@@ -61,13 +62,22 @@ function Index() {
   const { data: events } = useEvents(3);
   const { data: posts } = usePosts(3);
   const { data: testimonials } = useTestimonials();
+  const { data: settings } = useSettings();
+  const text = (key: string, fallback: string) => settings?.[key]?.trim() || fallback;
+  const image = (key: string, fallback: string) => safeHttpsUrl(settings?.[key]) ?? fallback;
+
+  const heroTitle = text("home_hero_title", "Unis dans la prière,\nrenouvelés dans l'Esprit.");
+  const welcomeText = text(
+    "home_welcome_text",
+    "Notre groupe rassemble des frères et sœurs de tous âges qui désirent vivre une foi vivante, joyeuse et enracinée dans l'Église catholique. Chacun est accueilli tel qu'il est, avec ses joies, ses questions et ses espérances.\n\nEnsemble, nous prions, nous louons, nous nous formons et nous nous soutenons mutuellement. Nous croyons que l'Esprit Saint agit aujourd'hui encore et renouvelle les cœurs.\n\nVous êtes le bienvenu, venez simplement comme vous êtes.",
+  );
 
   return (
     <SiteLayout>
       {/* HERO */}
       <section className="relative isolate flex min-h-[86vh] items-center overflow-hidden">
         <img
-          src={heroImage}
+          src={image("home_hero_image_url", heroImage)}
           alt="Assemblée de fidèles en prière et en louange dans une église"
           width={1920}
           height={1088}
@@ -82,15 +92,15 @@ function Index() {
             <p className="mt-2 text-sm tracking-[0.2em] text-primary-foreground/80 uppercase">
               Groupe de Prière de Zoundja
             </p>
-            <h1 className="mt-7 text-4xl leading-[1.08] font-semibold sm:text-6xl">
-              Unis dans la prière,
-              <br />
-              renouvelés dans l'Esprit.
+            <h1 className="mt-7 whitespace-pre-line text-4xl leading-[1.08] font-semibold sm:text-6xl">
+              {heroTitle}
             </h1>
             <span className="gold-rule mt-7" />
             <p className="mt-6 max-w-xl text-base leading-relaxed text-primary-foreground/85 sm:text-lg">
-              Une communauté de foi, de prière et de fraternité, rassemblée pour accueillir la
-              présence de Dieu et annoncer l'Évangile.
+              {text(
+                "home_hero_description",
+                "Une communauté de foi, de prière et de fraternité, rassemblée pour accueillir la présence de Dieu et annoncer l'Évangile.",
+              )}
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" variant="gold">
@@ -110,7 +120,7 @@ function Index() {
           <Reveal>
             <div className="relative">
               <img
-                src={communityImage}
+                src={image("home_welcome_image_url", communityImage)}
                 alt="Groupe de prière catholique réuni en cercle"
                 loading="lazy"
                 width={1280}
@@ -127,20 +137,10 @@ function Index() {
             <SectionHeading
               align="left"
               eyebrow="Bienvenue"
-              title="Bienvenue dans notre communauté"
+              title={text("home_welcome_title", "Bienvenue dans notre communauté")}
             />
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
-              <p>
-                Notre groupe rassemble des frères et sœurs de tous âges qui désirent vivre une foi
-                vivante, joyeuse et enracinée dans l'Église catholique. Chacun est accueilli tel
-                qu'il est, avec ses joies, ses questions et ses espérances.
-              </p>
-              <p>
-                Ensemble, nous prions, nous louons, nous nous formons et nous nous soutenons
-                mutuellement. Nous croyons que l'Esprit Saint agit aujourd'hui encore et renouvelle
-                les cœurs.
-              </p>
-              <p>Vous êtes le bienvenu, venez simplement comme vous êtes.</p>
+              {welcomeText.split("\n\n").map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
             </div>
             <Button asChild variant="default" className="mt-8">
               <Link to="/qui-sommes-nous">
@@ -217,7 +217,7 @@ function Index() {
       {/* AGENDA */}
       <section className="relative isolate overflow-hidden py-20 sm:py-28">
         <img
-          src={adorationImage}
+          src={image("home_agenda_image_url", adorationImage)}
           alt="Ostensoir doré lors d'un temps d'adoration"
           loading="lazy"
           width={1280}
@@ -228,7 +228,9 @@ function Index() {
         <div className="container-page text-primary-foreground">
           <Reveal>
             <p className="eyebrow">Agenda</p>
-            <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Nos prochains rendez-vous</h2>
+            <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">
+              {text("home_agenda_title", "Nos prochains rendez-vous")}
+            </h2>
             <span className="gold-rule mt-5" />
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -361,11 +363,13 @@ function Index() {
             <div className="rounded-lg border border-accent/40 bg-card p-10 text-center shadow-soft sm:p-16">
               <p className="eyebrow">Nous rejoindre</p>
               <h2 className="mt-4 text-3xl font-semibold text-primary sm:text-4xl">
-                Venez prier avec nous
+                {text("home_cta_title", "Venez prier avec nous")}
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-                Que vous soyez de passage ou en recherche d'une communauté, notre porte vous est
-                grande ouverte.
+                {text(
+                  "home_cta_description",
+                  "Que vous soyez de passage ou en recherche d'une communauté, notre porte vous est grande ouverte.",
+                )}
               </p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button asChild variant="gold" size="lg">

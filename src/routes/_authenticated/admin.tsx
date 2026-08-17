@@ -8,6 +8,7 @@ import {
   BookOpen,
   Quote,
   Settings,
+  Palette,
   Mail,
   LogOut,
   Home,
@@ -35,6 +36,7 @@ const LINKS = [
   { to: "/admin/ressources", label: "Ressources", icon: BookOpen },
   { to: "/admin/temoignages", label: "Témoignages", icon: Quote },
   { to: "/admin/messages", label: "Messages", icon: Mail },
+  { to: "/admin/apparence", label: "Apparence", icon: Palette, adminOnly: true },
   { to: "/admin/parametres", label: "Paramètres", icon: Settings, adminOnly: true },
 ] as const;
 
